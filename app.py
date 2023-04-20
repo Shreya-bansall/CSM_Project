@@ -1,46 +1,67 @@
-from flask import Flask, render_template, request, jsonify
-from cryptography.hazmat.primitives import serialization, hashes
-from cryptography.hazmat.primitives.asymmetric import ec
-from ecc_library import ecc_encrypt, ecc_decrypt
+from flask import Flask, request, render_template
 import os
+import tempfile
 
 app = Flask(__name__)
 
 @app.route('/')
-def home():
-    try:
-        return render_template('index.html')
-    except Exception as e:
-        return str(e)
+def index():
+    return render_template('index.html')
 
-@app.route('/upload', methods=['POST','GET'])
+@app.route('/upload', methods=['POST'])
 def upload():
-    try:
-        public_key = request.files['publicKeyInput'].read()
-        private_key = request.files['privateKeyInput'].read()
-        file = request.files['file']
-        plaintext = file.read()
+    # Get public key file and save it
+    publicKeyFile = request.files['publicKeyInput']
+    publicKeyFilename = os.path.join(tempfile.gettempdir(), publicKeyFile.filename)
+    publicKeyFile.save(publicKeyFilename)
+
+    # Get private key file and save it
+    if 'privateKeyInput' in request.files:
+        privateKeyFile = request.files['privateKeyInput']
+        privateKeyFilename = os.path.join(tempfile.gettempdir(), privateKeyFile.filename)
+        privateKeyFile.save(privateKeyFilename)
+
+    # Get file to encrypt or decrypt
+    file = request.files['file']
+    file.save(file.filename)
+
+    # Perform encryption or decryption logic using the filenames
+    # and file paths, and return appropriate response
+
+    # Example code for performing encryption and decryption
+    # Replace this with your actual encryption and decryption logic
+
+    # Read contents of file
+    with open(file.filename, 'rb') as f:
+        file_contents = f.read()
+
+    # Check if encrypt or decrypt action is requested
+    action = request.form.get('action')
+
+    # Perform encryption
+    if action == 'encrypt':
+        encrypted_file_contents = file_contents[::-1]  # Reverse the contents as an example
+
+        # Save encrypted contents to a new file
         encrypted_filename = 'encrypted_' + file.filename
-        decrypted_filename = 'decrypted_' + file.filename
-
-        # Perform ECC encryption
-        public_key = serialization.load_pem_public_key(public_key, backend=default_backend())
-        ciphertext = ecc_encrypt(public_key, plaintext)
         with open(encrypted_filename, 'wb') as encrypted_file:
-            encrypted_file.write(ciphertext)
+            encrypted_file.write(encrypted_file_contents)
 
-        # Perform ECC decryption
-        private_key = serialization.load_pem_private_key(private_key, password=None, backend=default_backend())
-        with open(encrypted_filename, 'rb') as encrypted_file:
-            ciphertext = encrypted_file.read()
-        plaintext = ecc_decrypt(private_key, ciphertext)
+        return f'Success! Encrypted file saved as {encrypted_filename}'
+
+    # Perform decryption
+    elif action == 'decrypt':
+        decrypted_file_contents = file_contents[::-1]  # Reverse the contents as an example
+
+        # Save decrypted contents to a new file
+        decrypted_filename = 'decrypted_' + file.filename
         with open(decrypted_filename, 'wb') as decrypted_file:
-            decrypted_file.write(plaintext)
+            decrypted_file.write(decrypted_file_contents)
 
-        return f'Success! Encrypted file saved as {encrypted_filename}. Decrypted file saved as {decrypted_filename}'
-    
-    except Exception as e:
-        return str(e)
+        return f'Success! Decrypted file saved as {decrypted_filename}'
+
+    else:
+        return 'Invalid action'
 
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=True)
