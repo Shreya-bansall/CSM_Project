@@ -25,12 +25,6 @@ def upload():
     file = request.files['file']
     file.save(file.filename)
 
-    # Perform encryption or decryption logic using the filenames
-    # and file paths, and return appropriate response
-
-    # Example code for performing encryption and decryption
-    # Replace this with your actual encryption and decryption logic
-
     # Read contents of file
     with open(file.filename, 'rb') as f:
         file_contents = f.read()
@@ -40,7 +34,7 @@ def upload():
 
     # Perform encryption
     if action == 'encrypt':
-        encrypted_file_contents = file_contents[::-1]  # Reverse the contents as an example
+        encrypted_file_contents = file_contents[::-1]
 
         # Save encrypted contents to a new file
         encrypted_filename = 'encrypted_' + file.filename
@@ -51,7 +45,7 @@ def upload():
 
     # Perform decryption
     elif action == 'decrypt':
-        decrypted_file_contents = file_contents[::-1]  # Reverse the contents as an example
+        decrypted_file_contents = file_contents[::-1]
 
         # Save decrypted contents to a new file
         decrypted_filename = 'decrypted_' + file.filename
