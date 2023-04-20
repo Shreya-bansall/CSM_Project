@@ -1,0 +1,11 @@
+anyio==3.6.2
+cipher==0.1
+crypto==1.4.1
+Crypto.Cipher==1
+cryptography==40.0.1
+ECPy==1.2.5
+Flask==2.2.3
+ipython==8.12.0
+ipython-genutils==0.2.0
+pycryptodome==3.17
+pycryptodomex==3.17
